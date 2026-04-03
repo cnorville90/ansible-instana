@@ -77,3 +77,19 @@
         host: "{{ item['public_ip'] }}"
         search_regex: OpenSSH
         delay: 10
+
+    - name: Wait for things to come up
+      ansible.builtin.pause:
+        seconds: 60
+
+    - name: Get Demo instances we care about
+      register: instance_info
+      amazon.aws.ec2_instance_info:
+        region: "{{ vm_region }}"
+        filters:
+          tag:Name: "Instana Bastion"
+          instance-state-name: [running]
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: instance_info
