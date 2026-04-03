@@ -28,3 +28,12 @@
           public_ip: "{{ item['public_ip_address'] }}"
           private_ip_address: "{{ item['private_ip_address'] }}"
       loop: "{{ instana_instance_info['instances'] }}"
+
+    - name: Add an inventory group for the bastion
+      ansible.controller.group:
+        name: instana
+        description: Instana Bastion Host Group
+        inventory: "{{ inventory_managed_inventory_name }}"
+        hosts: "{{ item['public_dns_name'] }}"
+        preserve_existing_hosts: true
+      loop: "{{ instance_info['instances'] }}"
