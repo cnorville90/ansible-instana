@@ -1,0 +1,25 @@
+---
+- name: Enable the http action senor in the Instana agent
+  hosts: instana
+  become: true
+  gather_facts: false
+
+  tasks:
+
+    - name: Edit the file
+      ansible.builtin.blockinfile:
+        path: /opt/instana/agent/etc/instana/configuration.yaml
+        insertafter: "^#com.instana.plugin.action.http: |
+                          enabled: true"
+        block: |
+            com.instana.plugin.action.http:
+              enabled: true
+        state: present
+      notify: restart_instana
+
+  handlers:
+
+    - name: restart_instana
+      ansible.builtin.service:
+        name: instana-agent
+        state: restarted
