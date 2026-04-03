@@ -1,0 +1,8 @@
+---
+- name: Configure Webservers for Instana
+  hosts: tag_Type_ml_demo
+  become: true
+
+  roles:
+
+    - role: instana_webserver_setup
