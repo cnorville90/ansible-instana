@@ -1,0 +1,29 @@
+---
+- name: Playbook to add the Instana Bastion to AAP Inventory
+  hosts: localhost 
+  vars_files:
+    - vars.yml
+
+  tasks: 
+
+    - name: Get the Instana instance
+      register: instana_instance_info
+      amazon.aws.ec2_instance_info:
+        region: "{{ inventory_region }}"
+        filters:
+          tag:Name: "Instana Bastion"
+          instance-state-name: [running]
+
+    - name: Dump out the info
+      ansible.builtin.debug:
+        var: instana_instance_info
+
+    - name: Update the AAP Managed Inventory
+      ansible.controller.host:
+        name: "{{ instana_instance_info['public_dns_name'] }}"
+        inventory: "{{ inventory_managed_inventory_name }}"
+        state: present
+        enabled: true
+        variables:
+          public_ip: "{{ instana_instance_info['public_ip_address'] }}"
+          private_ip_address: "{{ instana_instance_info['private_ip_address'] }}"
