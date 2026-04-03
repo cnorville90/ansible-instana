@@ -1,6 +1,6 @@
 ---
 - name: Install and configure the Instana APM Agent on Webservers
-  hosts: instana
+  hosts: instana, tag_Type_ml_demo
   become: true
 
   tasks:

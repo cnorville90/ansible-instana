@@ -1,0 +1,8 @@
+---
+- name: Website setup
+  hosts: tag_Type_ml_demo
+  become: true
+
+  roles:
+
+    - role: website_setup

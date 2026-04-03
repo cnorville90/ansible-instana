@@ -1,0 +1,19 @@
+---
+vm_name: F5 Daily Demo
+vm_vpc_name: f5-dailydemo
+vm_user_name: chris.norville
+vm_subnet_name: "{{ vm_vpc_name }}_Subnet"
+vm_image: ami-03e23b76dbc077805
+vm_image_webserver: ami-0c15e602d3d6c6c4a
+vm_webserver_count: 2
+vm_region: us-east-1
+vm_assign_public_ip: true
+vm_alwaysup: false
+vm_instance_type: m5.xlarge
+vm_webserver_instance_type: t2.small
+vm_ec2_security_group_name: "{{ vm_vpc_name }}_SECGRP"
+vm_ec2_ansible_group: "{{ vm_user_name }}"
+vm_my_email_address: "{{ vm_user_name }}@redhat.com"
+vm_my_ssh_key: aap_aws
+ansible_python_interpreter: /usr/bin/python3
+vm_instana_user_data: "{{ lookup('file', 'files/install_instana_agent.sh') }}"

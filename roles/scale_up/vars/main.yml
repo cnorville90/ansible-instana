@@ -1,0 +1,17 @@
+---
+scale_up_name: F5 Daily Demo
+scale_up_vpc_name: f5-dailydemo
+scale_up_user_name: chris.norville
+scale_up_subnet_name: "{{ scale_up_vpc_name }}_Subnet"
+scale_up_image_webserver: ami-0c15e602d3d6c6c4a
+scale_up_webserver_count: 1
+scale_up_region: us-east-1
+scale_up_assign_public_ip: true
+scale_up_alwaysup: false
+scale_up_webserver_instance_type: t2.small
+scale_up_ec2_security_group_name: "{{ scale_up_vpc_name }}_SECGRP"
+scale_up_ec2_ansible_group: "{{ scale_up_user_name }}"
+scale_up_my_email_address: "{{ scale_up_user_name }}@redhat.com"
+scale_up_my_ssh_key: aap_aws
+ansible_python_interpreter: /usr/bin/python3
+scale_up_instana_user_data: "{{ lookup('file', 'files/install_instana_agent.sh') }}"

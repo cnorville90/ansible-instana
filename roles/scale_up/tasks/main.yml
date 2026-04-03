@@ -1,0 +1,84 @@
+---
+- name: Spin up an additional Ec2
+  tags:
+    - create
+  block:
+
+    - name: Looking up Subnet_id
+      amazon.aws.ec2_vpc_subnet_info:
+        region: "{{ scale_up_region }}"
+        filters:
+          tag:Name: "{{ scale_up_subnet_name }}"
+      register: subnet_id
+
+    - name: Setting vpc_subnet_id based on Lookup
+      ansible.builtin.set_fact:
+        vpc_subnet_id: "{{ subnet_id.subnets[0].id }}"
+      when: vpc_subnet_id is undefined
+
+    - name: Dump out the INstana User user_data
+      ansible.builtin.debug:
+        var: scale_up_instana_user_data
+
+    - name: Creating F5 Daily Demo Web Servers
+      amazon.aws.ec2_instance:
+        name: "{{ scale_up_name }} webserver Scale Up"
+        region: "{{ scale_up_region }}"
+        state: running
+        key_name: "{{ scale_up_my_ssh_key }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+        instance_type: "{{ scale_up_webserver_instance_type }}"
+        exact_count: "{{ scale_up_webserver_count }}"
+        security_group: "{{ scale_up_ec2_security_group_name }}"
+        user_data: "{{ scale_up_instana_user_data }}"
+        network:
+          assign_public_ip: "{{ scale_up_assign_public_ip }}"
+        image_id: "{{ scale_up_image_webserver }}"
+        tags:
+          Environment: "{{ scale_up_vpc_name }}"
+          AlwaysUp: "{{ scale_up_alwaysup }}"
+          Createdby: Ansible Controller
+          Contact: "{{ scale_up_my_email_address }}"
+          DeletebBy: "{{ scale_up_ec2_ansible_group }}"
+          group: ml_demo
+        wait: true
+        wait_timeout: 600
+      register: ec2_additional_web_servers
+
+    - name: Put an EIP on the new webserver(s)
+      loop: "{{ ec2_additional_web_servers['instances'] }}"
+      amazon.aws.ec2_eip:
+        device_id: "{{ item['instance_id'] }}"
+        region: "{{ scale_up_region }}"
+        tag_name: reserved_forroles/website_setup/images
+        tag_value: "{{ item['instance_id'] }}"
+        release_on_disassociation: true
+        tags:
+          Environment: "{{ scale_up_vpc_name }}"
+          AlwaysUp: "{{ scale_up_alwaysup }}"
+          Createdby: Ansible Controller
+          Contact: "{{ scale_up_my_email_address }}"
+          DeletebBy: "{{ scale_up_ec2_ansible_group }}"
+          Name: "{{ scale_up_name }} webserver Scale Up"
+      register: ec2_webserver_eips
+
+    - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+      loop: "{{ ec2_webserver_eips['results'] }}"
+      ansible.builtin.wait_for:
+        port: 22
+        host: "{{ item['public_ip'] }}"
+        search_regex: OpenSSH
+        delay: 10
+
+    - name: Wait for things to come up
+      ansible.builtin.pause:
+        seconds: 60
+
+    - name: Grab the instance id of the new webserver so we can set up the webserver
+      loop: "{{ ec2_additional_web_servers['instances'] }}"
+      ansible.builtin.set_fact:
+        additional_webserver_instance_id: "{{ item['instance_id'] }}"
+
+    - name: Dump out the instance id
+      ansible.builtin.debug:
+        var: additional_webserver_instance_id
