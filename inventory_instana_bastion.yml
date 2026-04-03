@@ -36,4 +36,4 @@
         inventory: "{{ inventory_managed_inventory_name }}"
         hosts: "{{ item['public_dns_name'] }}"
         preserve_existing_hosts: true
-      loop: "{{ instance_info['instances'] }}"
+      loop: "{{ instana_instance_info['instances'] }}"
