@@ -20,10 +20,11 @@
 
     - name: Update the AAP Managed Inventory
       ansible.controller.host:
-        name: "{{ instana_instance_info['public_dns_name'] }}"
+        name: "{{ item['public_dns_name'] }}"
         inventory: "{{ inventory_managed_inventory_name }}"
         state: present
         enabled: true
         variables:
-          public_ip: "{{ instana_instance_info['public_ip_address'] }}"
-          private_ip_address: "{{ instana_instance_info['private_ip_address'] }}"
+          public_ip: "{{ item['public_ip_address'] }}"
+          private_ip_address: "{{ item['private_ip_address'] }}"
+        loop: "{{ instana_instance_info['instances'] }}"
