@@ -1,0 +1,9 @@
+---
+- name: Install and configure the Instana APM Agent on Webservers
+  hosts: instana
+  become: true
+
+  tasks:
+
+    - name: Install the Instana Agent
+      ansible.builtin.shell: curl -o setup_agent.sh https://setup.instana.io/agent && chmod 700 ./setup_agent.sh && sudo ./setup_agent.sh -a O_xPXPnaToa9ZpkiPG0Elg -d O_xPXPnaToa9ZpkiPG0Elg -t dynamic -e ingress-orange-saas.instana.io:443  -y 
