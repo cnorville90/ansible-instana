@@ -27,4 +27,4 @@
         variables:
           public_ip: "{{ item['public_ip_address'] }}"
           private_ip_address: "{{ item['private_ip_address'] }}"
-        loop: "{{ instana_instance_info['instances'] }}"
+      loop: "{{ instana_instance_info['instances'] }}"
